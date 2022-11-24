@@ -8,6 +8,10 @@ Generate different kinds of system load.
 ### Compile
 Run `gradle build` to compile the source code.
 
+### dependency
+
+- lscpu
+
 ### Run
 Run `gradle run` followed by command line arguments that you want to specify.<br>
 The following command line arguments are supported.

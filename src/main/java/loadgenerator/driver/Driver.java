@@ -24,6 +24,8 @@
 package loadgenerator.driver;
 
 import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -63,15 +65,40 @@ public class Driver {
         String loadType = commandLine.getOptionValue("load-type");
         SimpleStrategyFactoryI factory = new SimpleStrategyFactory();
         LoadGenerationStrategyI loadGenerationStrategy;
-        try {
-            loadGenerationStrategy = factory.getLoadGenerationStrategy(loadType);
-            if (null != loadGenerationStrategy) {
-                loadGenerationStrategy.execute();
-            }
-        } catch (UnsupportedLoadTypeException | IOException exception) {
-            exception.printStackTrace();
-        }
+        if (commandLine.hasOption("cpu-usage")){
 
+
+            String cpuUsage = commandLine.getOptionValue("cpu-usage");
+            String memoryUsage = commandLine.getOptionValue("memory-usage");
+            try {
+                System.out.println(cpuUsage);
+                System.out.println(memoryUsage);
+                loadGenerationStrategy = factory.getLoadGenerationStrategy(loadType, cpuUsage, memoryUsage);
+                if (null != loadGenerationStrategy) {
+                    loadGenerationStrategy.execute();
+                }
+            } catch (UnsupportedLoadTypeException | IOException exception) {
+                exception.printStackTrace();
+            }
+        }
+        else {
+            try {
+                loadGenerationStrategy = factory.getLoadGenerationStrategy(loadType);
+                if (null != loadGenerationStrategy) {
+                    loadGenerationStrategy.execute();
+                }
+            } catch (UnsupportedLoadTypeException | IOException exception) {
+                exception.printStackTrace();
+            }
+            try {
+                loadGenerationStrategy = factory.getLoadGenerationStrategy(loadType);
+                if (null != loadGenerationStrategy) {
+                    loadGenerationStrategy.execute();
+                }
+            } catch (UnsupportedLoadTypeException | IOException exception) {
+                exception.printStackTrace();
+            }
+        }
         System.out.println("DONE!");
     }
 }
