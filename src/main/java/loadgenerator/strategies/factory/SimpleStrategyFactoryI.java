@@ -30,4 +30,6 @@ import loadgenerator.strategies.LoadGenerationStrategyI;
 public interface SimpleStrategyFactoryI {
     LoadGenerationStrategyI getLoadGenerationStrategy(String loadType)
             throws UnsupportedLoadTypeException, IOException;
+
+    LoadGenerationStrategyI getLoadGenerationStrategy(String loadType, String cpuUsage, String memoryUsage) throws IOException;
 }

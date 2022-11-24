@@ -23,6 +23,7 @@
  */
 package loadgenerator.driver;
 
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 public final class CLIBuilder {
@@ -32,6 +33,8 @@ public final class CLIBuilder {
         // Defining command line options.
         OPTIONS.addOption("lT", "load-type", true, "Type of load to be generated");
         OPTIONS.addOption("h", "help", false, "Usage information");
+        OPTIONS.addOption("cU", "cpu-usage", true, "cpuUsage");
+        OPTIONS.addOption("mU", "memory-usage", true, "memoryUsage");
     }
 
     private CLIBuilder() {

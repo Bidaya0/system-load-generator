@@ -39,13 +39,13 @@ public class CPULoadGeneratorWithMemoryPressure implements LoadGenerationStrateg
 
     private final int minCpuLoadPercentage;
     private final int maxCpuLoadPercentage;
-    private final int ramUsageBytes;
+    private final long ramUsageBytes;
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Builder {
         private int minCpuLoadPercentage;
         private int maxCpuLoadPercentage;
-        private int ramUsageBytes;
+        private long ramUsageBytes;
 
         public Builder withConfig(String configFilePath) throws IOException {
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -68,21 +68,39 @@ public class CPULoadGeneratorWithMemoryPressure implements LoadGenerationStrateg
         public void setMaxCpuLoadPercentage(int maxCpuLoadPercentage) {
             this.maxCpuLoadPercentage = maxCpuLoadPercentage;
         }
-        public void setRamUsageBytes(int ramUsageBytes) {
+        public void setRamUsageBytes(long ramUsageBytes) {
             this.ramUsageBytes = ramUsageBytes;
         }
 
         public CPULoadGeneratorWithMemoryPressure build() {
             return new CPULoadGeneratorWithMemoryPressure(minCpuLoadPercentage, maxCpuLoadPercentage, ramUsageBytes);
         }
+        public Builder(int minCpuLoadPercentage, int maxCpuLoadPercentage, long ramUsageBytes){
+            this.minCpuLoadPercentage=minCpuLoadPercentage;
+            this.maxCpuLoadPercentage=maxCpuLoadPercentage;
+            this.ramUsageBytes = ramUsageBytes;
+        }
+        public Builder withoutConfig(int minCpuLoadPercentage, int maxCpuLoadPercentage, long ramUsageBytes) {
+            Builder builder;
+            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+            return new Builder(minCpuLoadPercentage,maxCpuLoadPercentage,ramUsageBytes);
+//            try {
+//                builder = mapper.readValue(content, Builder.class);
+//            } catch (JsonProcessingException e) {
+//                throw new RuntimeException(e);
+//            }
+//
+//            return builder;
+        }
     }
 
-    private CPULoadGeneratorWithMemoryPressure(int minCpuLoadPercentage, int maxCpuLoadPercentage, int ramUsageBytes) {
+    private CPULoadGeneratorWithMemoryPressure(int minCpuLoadPercentage, int maxCpuLoadPercentage, long ramUsageBytes) {
         this.minCpuLoadPercentage = minCpuLoadPercentage;
         this.maxCpuLoadPercentage = maxCpuLoadPercentage;
         this.ramUsageBytes = ramUsageBytes;
 
     }
+
 
     @Override
     public void execute() {
@@ -98,7 +116,7 @@ public class CPULoadGeneratorWithMemoryPressure implements LoadGenerationStrateg
         int numThreadsPerCore = procArchInfo.getNumThreadsPerCore();
         int threadsToCreate = numCores * numThreadsPerCore;
 
-        byte[] memory = new byte[ramUsageBytes / threadsToCreate];
+        byte[] memory = new byte[Math.toIntExact(ramUsageBytes / threadsToCreate)];
         for (int thread = 0; thread < threadsToCreate; thread++) {
             new BusyThread("Thread-" + thread, minCpuLoadPercentage, maxCpuLoadPercentage, memory).start();
         }
@@ -137,7 +155,14 @@ public class CPULoadGeneratorWithMemoryPressure implements LoadGenerationStrateg
                 Thread.sleep(cpuPressureRange);
 
                 while (true) {
-                    final int duration = minCpuLoadPercentage + random.nextInt(cpuPressureRange);
+                    int duration;
+                    if (cpuPressureRange > 0){
+                        duration = minCpuLoadPercentage + random.nextInt(cpuPressureRange);
+                    }
+                    else{
+                        duration = minCpuLoadPercentage;
+                    }
+
                     final long startTime = System.currentTimeMillis();
                     long currentDuration = (System.currentTimeMillis() - startTime);
                     while (currentDuration < duration) {

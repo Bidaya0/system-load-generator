@@ -125,4 +125,22 @@ public final class SimpleStrategyFactory implements SimpleStrategyFactoryI {
                 return null;
         }
     }
+
+    public LoadGenerationStrategyI getLoadGenerationStrategy(final String loadType, String cpuUsage, String MemoryUsage)
+            throws UnsupportedLoadTypeException, IOException {
+
+        if (!LoadType.isValid(loadType)) {
+            throw new UnsupportedLoadTypeException("failed to create load generation strategy: "
+                    + "unsupported load type");
+        }
+
+        switch (Objects.requireNonNull(LoadType.forName(loadType))) {
+            case CPU_LOAD_WITH_MEMORY_PRESSURE:
+                return new CPULoadGeneratorWithMemoryPressure.Builder()
+                        .withoutConfig(Integer.parseInt(cpuUsage),Integer.parseInt(cpuUsage),Long.parseLong(MemoryUsage))
+                        .build();
+            default:
+                return null;
+        }
+    }
 }
